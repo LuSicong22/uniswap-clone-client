@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { contractABI, contractAddress } from "../lib/constants";
 import { ethers } from "ethers";
+import { useRouter } from "next/router";
 
 export const TransactionContext = React.createContext();
 
@@ -24,6 +25,7 @@ const getEthereumContract = () => {
 export const TransactionProvider = ({ children }) => {
   const [currentAccount, setCurrentAccount] = useState();
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
   const [formData, setFormData] = useState({
     addressTo: "",
     amount: "",
@@ -69,7 +71,7 @@ export const TransactionProvider = ({ children }) => {
       const { addressTo, amount } = FormData;
       const transactionContract = getEthereumContract();
 
-      const parseAmount = ethers.utils.parseEther(amount);
+      const parsedAmount = ethers.utils.parseEther(amount);
 
       await metamask.request({
         method: "eth_sendTransaction",
@@ -85,7 +87,7 @@ export const TransactionProvider = ({ children }) => {
 
       const transactionHash = await transactionContract.publishTransaction(
         addressTo,
-        parseAmount,
+        parsedAmount,
         `Transferring ETH ${parsedAmount} to ${addressTo}`,
         "TRANSFER"
       );
@@ -110,6 +112,14 @@ export const TransactionProvider = ({ children }) => {
   const handleChange = (e, name) => {
     setFormData((prevState) => ({ ...prevState, [name]: e.target.value }));
   };
+
+  useEffect(() => {
+    if (isLoading) {
+      router.push(`/?loading=${currentAccount}`);
+    } else {
+      router.push(`/`);
+    }
+  }, [isLoading]);
 
   return (
     <TransactionContext.Provider

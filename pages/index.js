@@ -10,9 +10,10 @@ const style = {
 const Home = () => {
   return (
     <div className={style.wrapper}>
+      <p>Uniswap V2 Clone</p>
       <Header />
       <Main />
-      <h2>Transaction History</h2>
+      <h2>@Simon Lu</h2>
     </div>
   );
 };
